@@ -1,5 +1,5 @@
 #!/bin/bash
-#Test comment
+
 check_system () {
     echo "Print certain system information"
     echo "Certain system information: `uname -a`"
