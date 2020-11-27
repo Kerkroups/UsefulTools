@@ -2,13 +2,17 @@
 
 check_system () {
     echo "Print certain system information"
-    uname -a
+    echo "Certain system information: `uname -a`"
+    echo "Distro: `cat /etc/issue`"
+    echo "Current user: `whoami`"
 }
 
 user_processes () {
     echo ""
     echo "List of process runned by user `whoami`"
     ps -a -u `whoami`
+    echo "List of jobs: "
+    jobs
 }
 
 open_ports () {
@@ -108,6 +112,62 @@ SGID_list () {
     echo "SGID files: "
     find / -perm 2000 2>/dev/null
 }
+sudo_version () {
+    echo ""
+    echo "Check sudo version: `sudo --version | grep "Sudo version"`"
+}
+ssh_checks () {
+    echo ""
+    echo "SSH check: "
+    echo "Port: `cat /etc/ssh/ssh_config | awk -F " " 'NR==40 {print $0}'` "
+    echo "PasswordAuthentication: `cat /etc/ssh/ssh_config | awk -F " " 'NR==25 {print $0}'`"
+}
+currently_mounted_fs () {
+    echo ""
+    echo "Currently mounted filesystem: "
+    mount | column -t
+}
+network_service_activity_rt () {
+    echo ""
+    echo "Network services activity in real-time: "
+    lsof -i
+}
+mysql_checks () {
+    mysqlver=`mysql --version 2>/dev/null`
+if [ "$mysqlver" ]; then
+  echo -e "\e[00;31m[-] MYSQL version:\e[00m\n$mysqlver" 
+  echo -e "\n"
+fi
+
+#checks to see if root/root will get us a connection
+mysqlconnect=`mysqladmin -uroot -proot version 2>/dev/null`
+if [ "$mysqlconnect" ]; then
+  echo -e "\e[00;33m[+] We can connect to the local MYSQL service with default root/root credentials!\e[00m\n$mysqlconnect" 
+  echo -e "\n"
+fi
+
+#checks to see if root/nopass will get us a connection
+mysqlconnect=`mysqladmin -uroot version 2>/dev/null`
+if [ "$mysqlconnect" ]; then
+  echo -e "\e[00;33m[+] We can connect to the local MYSQL service with default root/root credentials!\e[00m\n$mysqlconnect" 
+  echo -e "\n"
+fi
+
+#mysql version details
+mysqlconnectnopass=`mysqladmin -uroot version 2>/dev/null`
+if [ "$mysqlconnectnopass" ]; then
+  echo -e "\e[00;33m[+] We can connect to the local MYSQL service as 'root' and without a password!\e[00m\n$mysqlconnectnopass" 
+  echo -e "\n"
+fi
+}
+selinux_check () {
+    echo ""
+    echo "Selinux Enforcing (OK), Permissive, Disabled (NOT OK): `/usr/sbin/getenforce`"
+    echo "SELinux status: "
+    /usr/sbin/sestatus
+    
+}
+
 check_system
 user_processes
 open_ports
@@ -118,4 +178,9 @@ disableb_root_login
 kernel_hardering_info
 SUID_list
 SGID_list
-
+sudo_version
+ssh_checks
+network_service_activity_rt
+currently_mounted_fs
+mysql_checks
+selinux_check
