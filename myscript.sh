@@ -1,5 +1,10 @@
 #!/bin/bash
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[43m'
+NC='\033[0m'
+
 check_system () {
     echo "Print certain system information"
     echo "Certain system information: `uname -a`"
@@ -167,7 +172,37 @@ selinux_check () {
     /usr/sbin/sestatus
     
 }
+#Ensure mounting of freevxfs filesystems is disabled (Scored)
+check_freevxfs () { if [[ $(lsmod | grep freevsx) == true ]];then echo -e "=> freevxfs is $RED ENABLED $NC";else echo -e "=> freevxfs is $GREEN DISABLED $NC";fi }
 
+#Ensure mounting of jffs2 filesystems is disabled (Scored)
+check_jffs2 () { if [[ $(lsmod | grep jffs2) == true ]];then echo -e "=> jffs2 is $RED ENABLED $NC";else echo -e "=> jffs2 is $GREEN DISABLED $NC";fi }
+
+#Ensure mounting of hfs filesystems is disabled (Scored)
+check_hfs () { if [[ $(lsmod | grep hfs) == true ]];then echo -e "=> hfs is $RED ENABLED $NC";else echo -e "=> hfs is $GREEN DISABLED $NC";fi }
+
+#Ensure mounting of hfsplus filesystems is disabled (Scored)
+check_hfsplus () { if [[ $(lsmod | grep hfsplus) == true ]];then echo -e "=> hfsplus is $RED ENABLED $NC";else echo -e "=> hfsplus is $GREEN DISABLED $NC";fi }
+
+#Ensure mounting of udf filesystems is disabled (Scored)
+check_udf () { if [[ $(lsmod | grep udf) == true ]];then echo -e "=> udf is $RED ENABLED $NC";else echo -e "=> udf is $GREEN DISABLED $NC";fi }
+#Cron check
+cron_1 () {
+    if [[ $(systemctl is-enabled cron) == "Enabled" ]]
+    then
+    echo "=> Cron $GREEN ENABLED"
+    else echo -e "=> Cron $RED DISABLED"
+    fi
+    
+    if [[ $(ls -l /etc/crontab | awk -F " " {'print $1'}) == "-rw-------" ]]
+    then
+    echo -e "=> Crontab rights is $GREEN OK"
+    else
+    echo -e "=> Crontab rights is $RED NOT OK, `ls -l /etc/crontab | awk -F " " '{print $1}'`"
+    fi
+}
+
+main() {
 check_system
 user_processes
 open_ports
@@ -184,3 +219,12 @@ network_service_activity_rt
 currently_mounted_fs
 mysql_checks
 selinux_check
+check_freevxfs
+check_jffs2
+check_hfs
+check_hfsplus
+check_udf
+cron_1
+}
+
+main
