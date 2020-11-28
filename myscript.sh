@@ -190,15 +190,43 @@ check_udf () { if [[ $(lsmod | grep udf) == true ]];then echo -e "=> udf is $RED
 cron_1 () {
     if [[ $(systemctl is-enabled cron) == "Enabled" ]]
     then
-    echo "=> Cron $GREEN ENABLED"
-    else echo -e "=> Cron $RED DISABLED"
+    echo "=> Cron $GREEN ENABLED $NC"
+    else echo -e "=> Cron $RED DISABLED $NC"
     fi
     
     if [[ $(ls -l /etc/crontab | awk -F " " {'print $1'}) == "-rw-------" ]]
     then
-    echo -e "=> Crontab rights is $GREEN OK"
+    echo -e "=> Crontab rights is $GREEN OK $NC"
     else
-    echo -e "=> Crontab rights is $RED NOT OK, `ls -l /etc/crontab | awk -F " " '{print $1}'`"
+    echo -e "=> Crontab rights is $RED NOT OK, `ls -l /etc/crontab | awk -F " " '{print $1}'`$NC"
+    fi
+    
+    if [[ $(stat /etc/cron.hourly | awk -F " " 'NR==4 {print $2}') == "(0700/drwx------)" ]]
+    then
+    echo -e "=> Cron.hourly rights is $GREEN OK $NC"
+    else 
+    echo -e "=> Cron.hourly rights is $RED NOT OK $NC"
+    fi
+    
+    if [[ $(stat /etc/cron.daily | awk -F " " 'NR==4 {print $2}') == "(0700/drwx------)" ]]
+    then
+    echo -e "=> Cron.daily rights is $GREEN OK $NC"
+    else 
+    echo -e "=> Cron.daily rights is $RED NOT OK $NC"
+    fi
+    
+    if [[ $(stat /etc/cron.weekly | awk -F " " 'NR==4 {print $2}') == "(0700/drwx------)" ]]
+    then
+    echo -e "=> Cron.weekly rights is $GREEN OK $NC"
+    else 
+    echo -e "=> Cron.weekly rights is $RED NOT OK $NC"
+    fi
+    
+    if [[ $(stat /etc/cron.monthly | awk -F " " 'NR==4 {print $2}') == "(0700/drwx------)" ]]
+    then
+    echo -e "=> Cron.monthly rights is $GREEN OK $NC"
+    else 
+    echo -e "=> Cron.monthly rights is $RED NOT OK $NC"
     fi
 }
 
