@@ -31,58 +31,63 @@ key_file_owner_check () {
     echo "Check for Security on Key Files. Files: /etc/fstab, /etc/passwd, /etc/shadow, /etc/group"
     if [[ $(ls -l /etc/fstab | awk -F " " {'print $3,$4'}) == "root root" ]]
     then
-    echo "/etc/fstab owned by user ROOT and ROOT GROUP"
+    echo -e "/etc/fstab owned by user $GREEN ROOT and ROOT GROUP $NC"
     else
-    echo "/etc/fstab owned by user `ls -l /etc/fstab | awk -F " " {'print $3}` and group `ls -l /etc/fstab | awk -F " " {'print $4`"
+    echo -e "/etc/fstab owned by user $RED`ls -l /etc/fstab | awk -F " " {'print $3}` and group `ls -l /etc/fstab | awk -F " " {'print $4`$NC"
     fi
     
     if [[ $(ls -l /etc/passwd | awk -F " " {'print $3,$4'}) == "root root" ]]
     then
-    echo "/etc/passwd owned by user ROOT and ROOT GROUP"
+    echo -e "/etc/passwd owned by user $GREEN ROOT and ROOT GROUP $NC"
     else
-    echo "/etc/passwd owned by user `ls -l /etc/passwd | awk -F " " {'print $3'}` and group `ls -l /etc/passwd | awk -F " " {'print $4'}`"
+    echo -e "/etc/passwd owned by user $RED`ls -l /etc/passwd | awk -F " " {'print $3'}` and group `ls -l /etc/passwd | awk -F " " {'print $4'}`$NC"
     fi
     
     if [[ $(ls -l /etc/shadow | awk -F " " {'print $3,$4'}) == "root root" ]]
     then
-    echo "/etc/shadow owned by user ROOT and ROOT GROUP"
+    echo -e "/etc/shadow owned by user $GREEN ROOT and ROOT GROUP $NC"
     else
-    echo "/etc/shadow owned by user `ls -l /etc/shadow | awk -F " " {'print $3'}` and group `ls -l /etc/shadow | awk -F " " {'print $4'}`"
+    echo -e "/etc/shadow owned by user $RED`ls -l /etc/shadow | awk -F " " {'print $3'}`$NC and group $RED`ls -l /etc/shadow | awk -F " " {'print $4'}`$NC"
     fi
     
     if [[ $(ls -l /etc/group | awk -F " " {'print $3,$4'}) == "root root" ]]
     then
-    echo "/etc/group owned by user ROOT and ROOT GROUP"
+    echo -e "/etc/group owned by user $GREEN ROOT and ROOT GROUP $NC"
     else
-    echo "/etc/group owned by user `ls -l /etc/group | awk -F " " {'print $3}` and group `ls -l /etc/group | awk -F " " {'print $4`"
+    echo -e "/etc/group owned by user $RED`ls -l /etc/group | awk -F " " {'print $3}` and group `ls -l /etc/group | awk -F " " {'print $4`$NC"
     fi
     
     if [[ $(ls -l /etc/passwd | awk -F " " {'print $1'}) == "rw-r--r--" ]]
     then
-    echo "Permissions of /etc/passwd is OK"
+    echo -e "$GREEN Permissions of /etc/passwd is OK $NC"
     else
-    echo "Permissions of /etc/passwd must be rw-r--r--! NOT OK"
+    echo -e "$RED Permissions of /etc/passwd must be rw-r--r--! NOT OK $NC"
     fi
     
     if [[ $(ls -l /etc/group | awk -F " " {'print $1'}) == "rw-r--r--" ]]
     then
-    echo "Permissions of /etc/group is OK"
+    echo -e "$GREEN Permissions of /etc/group is OK $NC"
     else
-    echo "Permissions of /etc/group must be rw-r--r--! NOT OK"
+    echo -e "$RED Permissions of /etc/group must be rw-r--r--! NOT OK $NC"
     fi
     
     if [[ $(ls -l /etc/shadow | awk -F " " {'print $1'}) == "r--------" ]]
     then
-    echo "Permissions of /etc/shadow is OK"
+    echo -e "$GREEN Permissions of /etc/shadow is OK $NC"
     else
-    echo "Permissions of /etc/shadow must be r--------! NOT OK"
+    echo -e "$RED Permissions of /etc/shadow must be r--------! NOT OK $NC"
     fi
 }
 
 pass_policy_1 () {
     echo ""
     echo "Check password policy"
-    cat /etc/login.defs | grep "PASS_MAX_DAYS\|PASS_MIN_DAYS\|PASS_WARN_AGE\|PASS_MIN_LEN\|LOGIN_RETRIES\|LOGIN_TIMEOUT"
+    cat /etc/login.defs | awk -e /^PASS_MAX_DAYS/
+    cat /etc/login.defs | awk -e /^PASS_MIN_DAYS/
+    cat /etc/login.defs | awk -e /^PASS_WARN_AGE/
+    cat /etc/login.defs | awk -e /^PASS_MIN_LEN/
+    cat /etc/login.defs | awk -e /^LOGIN_RETRIES/
+    cat /etc/login.defs | awk -e /^LOGIN_TIMEOUT/
 }
 non_root_uid () {
     echo ""
