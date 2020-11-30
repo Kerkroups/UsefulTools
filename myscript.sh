@@ -235,6 +235,159 @@ cron_1 () {
     fi
 }
 
+ntp_check () {
+    if [[ $(grep "^restrict" /etc/ntp.conf | awk 'NR==1') == "restrict -4 default kod notrap nomodify nopeer noquery limited" ]] && [[ $(grep "^restrict" /etc/ntp.conf | awk 'NR==2') == "restrict -6 default kod notrap nomodify nopeer noquery limited" ]]
+    then
+    echo "NTP check PASSED"
+    else echo "NTP ckeck FAILED"
+    fi
+    
+    if [[ $( grep "RUNASUSER=ntp" /etc/init.d/ntp) == "RUNASUSER=ntp" ]]
+    then
+    echo "NTP user PASSED"
+    else echo "NTP user FAILED"
+    fi
+}
+
+xorg_check () {
+    if [[ $(dpkg -l xserver-xorg* | awk 'NR > 5') != 0 ]]
+    then
+    echo -e "Xorg server FOUND"
+    else echo -e "Xorg server NOT FOUND"
+    fi 
+}
+
+avahi_check () {
+    if [[ $(systemctl is-enabled avahi-daemon) == "disabled" ]]
+    then
+    echo -e "Avahi daemon is DISABLED"
+    else echo -e "Avahi daemon is ENABLED"
+    fi
+}
+
+cups_check () {
+    if [[ $(systemctl is-enabled cups) == "disabled" ]]
+    then
+    echo -e "Cups daemon is DISABLED"
+    else echo -e "Cups daemon is ENABLED"
+    fi
+}
+
+dhcp_check () {
+    if [[ $(systemctl is-enabled isc-dhcp-server | grep -wo "disabled") == *"disabled"* ]]
+    then
+    echo -e "DHCP-SERVER-4 DISABLED"
+    else echo "DHCP-SERVER-4 ENABLED"
+    fi 2>/dev/null
+    
+    if [[ $(systemctl is-enabled isc-dhcp-server6) ]]
+    then
+    echo "DHCP-SERVER-6 FOUND"
+    else echo -e "DHCP-SERVER-6 NOT FOUND"
+    fi 2>/dev/null
+}
+
+sldap_check () {
+    if [[ $(systemctl is-enabled slapd) ]]
+    then
+    echo "LDAP SERVER FOUND"
+    else echo -e "LDAP SERVER NOT FOUND"
+    fi 2>/dev/null
+}
+
+nfs_check () {
+    if [[ $(systemctl is-enabled nfs-server) == "enabled" ]]
+    then
+    echo "NFS ENABLED"
+    elif [[ $(systemctl is-enabled nfs-server) == "disabled" ]]
+    then
+    echo -e "NFS DISABLED"
+    else echo "NFS NOT FOUND"
+    fi 2>/dev/null
+    
+    if [[ $(systemctl is-enabled rpcbind) == "enabled" ]]
+    then
+    echo -e "RPC is ENABLED"
+    else echo -e "RPC is DISABLED"
+    fi
+}
+
+dns_bind9_check () {
+    if [[ $(systemctl is-enabled bind9) == "enabled" ]]
+    then
+    echo -e "BIND9 ENABLED"
+    elif [[ $(systemctl is-enabled bind9) == "disabled" ]]
+    then
+    echo -e "BIND9 DISABLED"
+    else echo "NFS NOT FOUND"
+    fi 2>/dev/null
+}
+
+vsftpd_check () {
+    if [[ $(systemctl is-enabled vsftpd) == "enabled" ]]
+    then
+    echo -e "vsftpd ENABLED"
+    elif [[ $(systemctl is-enabled vsftpd) == "disabled" ]]
+    then
+    echo -e "vsftpd DISABLED"
+    else echo "vsftpd NOT FOUND"
+    fi 2>/dev/null
+}
+
+apache2_check () {
+    if [[ $(systemctl is-enabled apache2) == "enabled" ]]
+    then
+    echo -e "apache2 ENABLED"
+    elif [[ $(systemctl is-enabled apache2) == "disabled" ]]
+    then
+    echo -e "apache2 DISABLED"
+    else echo "apache2 NOT FOUND"
+    fi 2>/dev/null
+}
+imap_pop3_check () {
+    if [[ $(dpkg -s exim4 | awk 'NR==1') == "dpkg-query: package 'exim4' is not installed and no information is available" ]]
+    then
+    echo -e "IMAP/POP3 NOT INSTALLED"
+    else echo "REMOVE IMAP/POP3"
+    fi 2>/dev/null
+}
+
+smbd_check () {
+    if [[ $(systemctl is-enabled smbd) == "enabled" ]]
+    then
+    echo -e "smbd ENABLED"
+    elif [[ $(systemctl is-enabled smbd) == "disabled" ]]
+    then
+    echo -e "smbd DISABLED"
+    else echo "smbd NOT FOUND"
+    fi 2>/dev/null
+}
+
+squid_check () {
+    if [[ $(systemctl is-enabled squid) == "enabled" ]]
+    then
+    echo -e "squid ENABLED"
+    elif [[ $(systemctl is-enabled squid) == "disabled" ]]
+    then
+    echo -e "squid DISABLED"
+    else echo "squid NOT FOUND"
+    fi 2>/dev/null
+}
+
+snmpd_check () {
+    if [[ $(systemctl is-enabled snmpd) == "enabled" ]]
+    then
+    echo -e "snmpd ENABLED"
+    elif [[ $(systemctl is-enabled snmpd) == "disabled" ]]
+    then
+    echo -e "snmpd DISABLED"
+    elif [[ $(systemctl is-enabled snmpd) == "masked" ]]
+    then
+    echo -e "snmpd MASKED"
+    else echo "squid NOT FOUND"
+    fi 2>/dev/null
+}
+
 main() {
 check_system
 user_processes
@@ -258,6 +411,19 @@ check_hfs
 check_hfsplus
 check_udf
 cron_1
+ntp_check
+xorg_check
+avahi_check
+cups_check
+dhcp_check
+sldap_check
+nfs_check
+vsftpd_check
+apache2_check
+imap_pop3_check
+smbd_check
+squid_check
+snmpd_check
 }
 
 main
