@@ -126,12 +126,7 @@ sudo_version () {
     echo ""
     echo "Check sudo version: `sudo --version | grep "Sudo version"`"
 }
-ssh_checks () {
-    echo ""
-    echo "SSH check: "
-    echo "Port: `cat /etc/ssh/ssh_config | awk -F " " 'NR==40 {print $0}'` "
-    echo "PasswordAuthentication: `cat /etc/ssh/ssh_config | awk -F " " 'NR==25 {print $0}'`"
-}
+
 currently_mounted_fs () {
     echo ""
     echo "Currently mounted filesystem: "
@@ -386,6 +381,28 @@ snmpd_check () {
     echo -e "snmpd MASKED"
     else echo "squid NOT FOUND"
     fi 2>/dev/null
+}
+
+ssh_checks() {
+echo "==================================================================================================================="
+echo "SSH CONFIGURATION CHECKS"
+if [[$(ls -l /etc/ssh/sshd_config | awk -F " " '{print $1,$3,$4}') == "-rw-r--r-- root root"]]
+then
+echo -e "$RED Permission must be -rw------- $NC"
+elif [[$(ls -l /etc/ssh/sshd_config | awk -F " " '{print $1,$3,$4}') == "-rw------- root root"]]
+then
+echo -e "$GREEN PASS $NC"
+else echo -e "$RED Check owner and permissions $NC"
+fi 2>/dev/null
+
+find /etc/ssh -xdev -type f -name 'ssh_host_*_key' -exec ls -l {} \; | awk -F " " '{print $1,$3,$4}' | while read -r line 
+do
+    if [[ $line == "-rw------- root root" ]]
+    then
+    echo -e "$GREEN PASS $NC"
+    else echo -e "$RED Check permissions and owner of SSH private key $NC"
+    fi
+done 2>/dev/null
 }
 
 main() {
