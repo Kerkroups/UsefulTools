@@ -3,8 +3,9 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
+import sys
 
-response = urlopen('http://promos.privatbank.ua')
+response = urlopen(str(sys.argv[1]))
 data = response.read()
 encoding = response.info().get_content_charset()
 html = data.decode(encoding)
